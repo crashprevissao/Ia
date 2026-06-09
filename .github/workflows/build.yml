@@ -1,167 +1,129 @@
-#!/bin/bash
+name: Gerar Estrutura do Jarvis
 
-echo "🤖 Iniciando o protocolo de construção do Jarvis..."
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
-# Define os caminhos das pastas padrão do Android
-PACKAGE_DIR="app/src/main/java/com/seuprojeto/jarvis"
-RES_XML_DIR="app/src/main/res/xml"
-RES_VALUES_DIR="app/src/main/res/values"
-MANIFEST_PATH="app/src/main/AndroidManifest.xml"
+jobs:
+  construir-projeto:
+    runs-on: ubuntu-latest
 
-# Cria as pastas necessárias
-mkdir -p $PACKAGE_DIR
-mkdir -p $RES_XML_DIR
-mkdir -p $RES_VALUES_DIR
+    steps:
+      - name: Clonar o Repositório
+        uses: actions/checkout@v4
 
-echo "📂 Pastas criadas com sucesso."
+      - name: Executar Script de Automação do Projeto
+        run: |
+          echo "🤖 Iniciando o protocolo de construção do Jarvis..."
 
-# 1. Cria o AndroidManifest.xml
-cat << 'EOF' > $MANIFEST_PATH
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.seuprojeto.jarvis">
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="Jarvis"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <service
-            android:name=".JarvisAccessibilityService"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/jarvis_accessibility_config" />
-        </service>
-    </application>
-</manifest>
-EOF
+          # Define os caminhos das pastas padrão do Android
+          PACKAGE_DIR="app/src/main/java/com/seuprojeto/jarvis"
+          RES_XML_DIR="app/src/main/res/xml"
+          RES_VALUES_DIR="app/src/main/res/values"
+          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
 
-# 2. Cria o arquivo de configuração de acessibilidade
-cat << 'EOF' > $RES_XML_DIR/jarvis_accessibility_config.xml
-<?xml version="1.0" encoding="utf-8"?>
-<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeAllMask"
-    android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews|flagReportViewIds"
-    android:canRetrieveWindowContent="true"
-    android:canPerformGestures="true"
-    android:description="@string/accessibility_description" />
-EOF
+          # Cria as pastas necessárias
+          mkdir -p "$PACKAGE_DIR"
+          mkdir -p "$RES_XML_DIR"
+          mkdir -p "$RES_VALUES_DIR"
 
-# 3. Cria as strings
-cat << 'EOF' > $RES_VALUES_DIR/strings.xml
-<resources>
-    <string name="app_name">Jarvis</string>
-    <string name="accessibility_description">Permite ao Jarvis controle total para automatizar tarefas e interagir com a interface do sistema.</string>
-</resources>
-EOF
+          echo "📂 Pastas criadas com sucesso."
 
-# 4. Cria a MainActivity.kt
-cat << 'EOF' > $PACKAGE_DIR/MainActivity.kt
-package com.seuprojeto.jarvis
+          # 1. Cria o AndroidManifest.xml
+          cat << 'EOF' > "$MANIFEST_PATH"
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.seuprojeto.jarvis">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+              <uses-permission android:name="android.permission.RECORD_AUDIO" />
+              <application
+                  android:allowBackup="true"
+                  android:label="Jarvis"
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+                  <service
+                      android:name=".JarvisAccessibilityService"
+                      android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.accessibilityservice.AccessibilityService" />
+                      </intent-filter>
+                      <meta-data
+                          android:name="android.accessibilityservice"
+                          android:resource="@xml/jarvis_accessibility_config" />
+                  </service>
+              </application>
+          </manifest>
+          EOF
 
-import android.content.Intent
-import android.os.Bundle
-import android.provider.Settings
-import android.widget.Button
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+          # 2. Cria o arquivo de configuração de acessibilidade
+          cat << 'EOF' > "$RES_XML_DIR/jarvis_accessibility_config.xml"
+          <?xml version="1.0" encoding="utf-8"?>
+          <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+              android:accessibilityEventTypes="typeAllMask"
+              android:accessibilityFeedbackType="feedbackGeneric"
+              android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews|flagReportViewIds"
+              android:canRetrieveWindowContent="true"
+              android:canPerformGestures="true"
+              android:description="@string/accessibility_description" />
+          EOF
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val btnAtivarJarvis = Button(this).apply {
-            text = "Dar Permissão Total ao Jarvis"
-            setOnClickListener {
-                Toast.makeText(this@MainActivity, "Ative o Jarvis na lista de Acessibilidade", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            }
-        }
-        setContentView(btnAtivarJarvis)
-    }
-}
-EOF
+          # 3. Cria as strings
+          cat << 'EOF' > "$RES_VALUES_DIR/strings.xml"
+          <resources>
+              <string name="app_name">Jarvis</string>
+              <string name="accessibility_description">Permite ao Jarvis controle total para automatizar tarefas e interagir com a interface do sistema.</string>
+          </resources>
+          EOF
 
-# 5. Cria o JarvisAccessibilityService.kt
-cat << 'EOF' > $PACKAGE_DIR/JarvisAccessibilityService.kt
-package com.seuprojeto.jarvis
+          # 4. Cria a MainActivity.kt
+          cat << 'EOF' > "$PACKAGE_DIR/MainActivity.kt"
+          package com.seuprojeto.jarvis
 
-import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.GestureDescription
-import android.graphics.Path
-import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import android.util.Log
+          import android.content.Intent
+          import android.os.Bundle
+          import android.provider.Settings
+          import android.widget.Button
+          import android.widget.Toast
+          import androidx.appcompat.app.AppCompatActivity
 
-class JarvisAccessibilityService : AccessibilityService() {
+          class MainActivity : AppCompatActivity() {
+              override fun onCreate(savedInstanceState: Bundle?) {
+                  super.onCreate(savedInstanceState)
+                  val btnAtivarJarvis = Button(this).apply {
+                      text = "Dar Permissão Total ao Jarvis"
+                      setOnClickListener {
+                          startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                      }
+                  }
+                  setContentView(btnAtivarJarvis)
+              }
+          }
+          EOF
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val rootNode = rootInActiveWindow ?: return
-        Log.d("JARVIS_EYES", "Analisando pacote: ${event?.packageName}")
-    }
+          # 5. Cria o JarvisAccessibilityService.kt
+          cat << 'EOF' > "$PACKAGE_DIR/JarvisAccessibilityService.kt"
+          package com.seuprojeto.jarvis
 
-    override fun onInterrupt() {
-        Log.e("JARVIS_SYS", "Serviço interrompido.")
-    }
+          import android.accessibilityservice.AccessibilityService
+          import android.view.accessibility.AccessibilityEvent
+          import android.util.Log
 
-    fun clicarEmBotaoPorTexto(texto: String) {
-        val rootNode = rootInActiveWindow ?: return
-        val nodes = rootNode.findAccessibilityNodeInfosByText(texto)
-        for (node in nodes) {
-            if (node.isClickable) {
-                node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Log.d("JARVIS_ACTION", "Cliquei em: $texto")
-                return
-            } else if (node.parent != null && node.parent.isClickable) {
-                node.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Log.d("JARVIS_ACTION", "Cliquei no pai de: $texto")
-                return
-            }
-        }
-    }
-}
-EOF
+          class JarvisAccessibilityService : AccessibilityService() {
+              override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+                  Log.d("JARVIS_EYES", "Analisando pacote: ${event?.packageName}")
+              }
+              override fun onInterrupt() {}
+          }
+          EOF
 
-echo "✅ Arquivos do Android gerados com sucesso."
-echo "⚠️  ATENÇÃO: Adicione o script de download da IA no final do seu arquivo 'app/build.gradle' manualmente!"
-// TAREFA PARA BAIXAR O MODELO (TINY LLAMA) DURANTE A COMPILAÇÃO
-tasks.register("downloadAIModel") {
-    def modelUrl = "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-    def assetsDir = file("${projectDir}/src/main/assets")
-    def modelFile = file("${assetsDir}/tinyllama.gguf")
-
-    doLast {
-        if (!modelFile.exists()) {
-            println "🤖 Baixando o cérebro do Jarvis... Por favor, aguarde."
-            assetsDir.mkdirs()
-            new URL(modelUrl).withInputStream { i -> modelFile.withOutputStream { it << i } }
-            println "✅ Download concluído!"
-        } else {
-            println "⚡ Modelo de IA já encontrado."
-        }
-    }
-}
-
-// Configura para não comprimir o modelo e executa o download antes de compilar
-android {
-    aaptOptions {
-        noCompress "gguf"
-    }
-}
-preBuild.dependsOn downloadAIModel
-
-
+          echo "✅ Arquivos do Android gerados com sucesso dentro da esteira do GitHub!"
+          
